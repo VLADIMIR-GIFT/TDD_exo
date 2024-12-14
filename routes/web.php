@@ -6,6 +6,9 @@ use App\Http\Controllers\ChirpController;
 use App\Models\Chirp;
 
 
+Route::post('/chirps/{chirp}/like', [ChirpController::class, 'like'])->middleware('auth');
+
+
 Route::delete('/chirps/{chirp}', [ChirpController::class, 'destroy']);
 
 

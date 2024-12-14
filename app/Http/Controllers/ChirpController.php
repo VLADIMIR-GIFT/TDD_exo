@@ -7,6 +7,26 @@ use App\Models\Chirp;
 
 class ChirpController extends Controller
 {
+    public function like(Request $request, Chirp $chirp)
+ {
+    // Vérifie si l'utilisateur a déjà liké ce chirp
+    if ($chirp->likes()->where('user_id', auth()->id())->exists()) {
+        return response()->json(['error' => 'Vous avez déjà liké ce chirp'], 403);
+    }
+
+    // Ajoute un like
+    $chirp->likes()->attach(auth()->id());
+
+    return response()->json(['message' => 'Chirp liké avec succès'], 200);
+ }
+     public function index()
+    {
+            // Filtrer les chirps créés dans les 7 derniers jours
+            $chirps = Chirp::where('created_at', '>=', Carbon::now()->subDays(7))->get();
+
+            return view('welcome', ['chirps' => $chirps]);
+    }
+
     public function store(Request $request)
     {
         // Vérifier si l'utilisateur a déjà 10 chirps

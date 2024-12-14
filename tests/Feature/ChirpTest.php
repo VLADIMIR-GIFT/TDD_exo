@@ -12,40 +12,45 @@ class ChirpTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
-    public function un_utilisateur_ne_peut_pas_mettre_a_jour_un_chirp_avec_un_contenu_vide()
+    public function un_utilisateur_peut_liker_un_chirp()
     {
         // Créer un utilisateur et un chirp
         $user = User::factory()->create();
-        $chirp = Chirp::factory()->create(['user_id' => $user->id]);
+        $chirp = Chirp::factory()->create();
 
         // Simuler une connexion en tant qu'utilisateur
         $this->actingAs($user);
 
-        // Tenter de mettre à jour le chirp avec un contenu vide
-        $response = $this->put("/chirps/{$chirp->id}", [
-            'content' => '',
-        ]);
+        // Liker le chirp
+        $response = $this->post("/chirps/{$chirp->id}/like");
 
-        // Vérifier que l'accès est refusé et une erreur est retournée
-        $response->assertSessionHasErrors(['content']);
+        // Vérifier que la requête a réussi
+        $response->assertStatus(200);
+
+        // Vérifier que le like est enregistré en base de données
+        $this->assertDatabaseHas('chirp_likes', [
+            'chirp_id' => $chirp->id,
+            'user_id' => $user->id,
+        ]);
     }
 
     /** @test */
-    public function un_utilisateur_ne_peut_pas_mettre_a_jour_un_chirp_avec_un_contenu_trop_long()
+    public function un_utilisateur_ne_peut_pas_liker_deux_fois_le_meme_chirp()
     {
         // Créer un utilisateur et un chirp
         $user = User::factory()->create();
-        $chirp = Chirp::factory()->create(['user_id' => $user->id]);
+        $chirp = Chirp::factory()->create();
 
         // Simuler une connexion en tant qu'utilisateur
         $this->actingAs($user);
 
-        // Tenter de mettre à jour le chirp avec un contenu de plus de 255 caractères
-        $response = $this->put("/chirps/{$chirp->id}", [
-            'content' => str_repeat('a', 256),
-        ]);
+        // Liker le chirp une première fois
+        $this->post("/chirps/{$chirp->id}/like");
 
-        // Vérifier que l'accès est refusé et une erreur est retournée
-        $response->assertSessionHasErrors(['content']);
+        // Tenter de liker le chirp une deuxième fois
+        $response = $this->post("/chirps/{$chirp->id}/like");
+
+        // Vérifier que la deuxième requête est refusée
+        $response->assertStatus(403);
     }
 }

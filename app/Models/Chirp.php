@@ -2,11 +2,18 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
 class Chirp extends Model
 {
-    Use HasFactory;
+    use HasFactory;
 
-    protected $fillable = ['content','user_id'];
+    // Définir les champs remplissables
+    protected $fillable = ['content', 'user_id'];
+
+    public function likes()
+    {
+        return $this->belongsToMany(User::class, 'chirp_likes');
+    }
 }

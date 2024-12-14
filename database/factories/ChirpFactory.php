@@ -13,6 +13,7 @@ class ChirpFactory extends Factory
         return [
             'content' => $this->faker->sentence(),
             'user_id' => \App\Models\User::factory(), // Associe chaque chirp à un utilisateur
+            'created_at' =>now(),
         ];
     }
 }
