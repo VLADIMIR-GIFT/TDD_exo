@@ -12,24 +12,43 @@ class ChirpTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
-    public function un_utilisateur_peut_supprimer_son_chirp()
+    public function un_utilisateur_ne_peut_pas_modifier_le_chirp_d_un_autre_utilisateur()
     {
-        // Étape 1 : Créer un utilisateur et un chirp
-        $utilisateur = User::factory()->create();
-        $chirp = Chirp::factory()->create(['user_id' => $utilisateur->id]);
+        // Créer deux utilisateurs
+        $user1 = User::factory()->create();
+        $user2 = User::factory()->create();
 
-        // Étape 2 : Simuler une authentification
-        $this->actingAs($utilisateur);
+        // Créer un chirp pour l'utilisateur 1
+        $chirp = Chirp::factory()->create(['user_id' => $user1->id]);
 
-        // Étape 3 : Envoyer une requête DELETE pour supprimer le chirp
-        $reponse = $this->delete("/chirps/{$chirp->id}");
+        // Simuler une connexion en tant qu'utilisateur 2
+        $this->actingAs($user2);
 
-        // Étape 4 : Vérifier que la requête a réussi
-        $reponse->assertStatus(200);
-
-        // Étape 5 : Vérifier que le chirp n'existe plus dans la base de données
-        $this->assertDatabaseMissing('chirps', [
-            'id' => $chirp->id,
+        // Tenter de modifier le chirp de l'utilisateur 1
+        $response = $this->put("/chirps/{$chirp->id}", [
+            'content' => 'Chirp modifié par un autre utilisateur',
         ]);
+
+        // Vérifier que l'accès est refusé
+        $response->assertStatus(403);
     }
+
+    /** @test */
+    public function un_utilisateur_ne_peut_pas_supprimer_le_chirp_d_un_autre_utilisateur()
+    {
+        // Créer deux utilisateurs
+        $user1 = User::factory()->create();
+        $user2 = User::factory()->create();
+
+        // Créer un chirp pour l'utilisateur 1
+        $chirp = Chirp::factory()->create(['user_id' => $user1->id]);
+
+        // Simuler une connexion en tant qu'utilisateur 2
+        $this->actingAs($user2);
+
+        // Tenter de supprimer le chirp de l'utilisateur 1
+        $response = $this->delete("/chirps/{$chirp->id}");
+
+        // Vérifier que l'accès est refusé
+        $response->assertStatus(403);
 }
