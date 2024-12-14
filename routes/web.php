@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ChirpController;
 use App\Models\Chirp;
 
+
+Route::put('/chirps/{chirp}', [ChirpController::class, 'update']);
 Route::get('/', function () {
     $chirps = Chirp::all();
     return view('welcome', ['chirps' => $chirps]);

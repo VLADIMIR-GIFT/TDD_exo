@@ -6,24 +6,23 @@ use App\Models\Chirp;
 
 class ChirpController extends Controller
 {
-    public function store(Request $request)
+    public function update(Request $request, Chirp $chirp)
     {
+        // Vérifier si l'utilisateur est propriétaire du chirp
+        if ($chirp->user_id !== auth()->id()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        // Valider le contenu
         $request->validate([
             'content' => 'required|string|max:255',
         ]);
 
-        $chirp = Chirp::create([
+        // Mettre à jour le chirp
+        $chirp->update([
             'content' => $request->input('content'),
-            'user_id' => auth()->id(),
         ]);
 
-        return response()->json($chirp, 201);
+        return response()->json($chirp, 200);
     }
-    Schema::create('chirps', function (Blueprint $table) {
-        $table->id();
-        $table->string('content');
-        $table->foreignId('user_id')->constrained()->onDelete('cascade');
-        $table->timestamps();
-    });
-
 }
