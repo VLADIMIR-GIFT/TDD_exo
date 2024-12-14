@@ -3,6 +3,12 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ChirpController;
+use App\Models\Chirp;
+
+Route::get('/', function () {
+    $chirps = Chirp::all();
+    return view('welcome', ['chirps' => $chirps]);
+});
 
 Route::post('/chirps',[ChirpController::class,'store']);
 
