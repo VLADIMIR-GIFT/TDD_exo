@@ -52,3 +52,4 @@ class ChirpTest extends TestCase
         // Vérifier que l'accès est refusé
         $response->assertStatus(403);
 }
+}
