@@ -11,7 +11,7 @@ class ChirpController extends Controller
         $request->validate([
             'content' => 'required|string|max:255',
         ]);
-                
+
         $chirp = Chirp::create([
             'content' => $request->input('content'),
             'user_id' => auth()->id(),
@@ -19,4 +19,11 @@ class ChirpController extends Controller
 
         return response()->json($chirp, 201);
     }
+    Schema::create('chirps', function (Blueprint $table) {
+        $table->id();
+        $table->string('content');
+        $table->foreignId('user_id')->constrained()->onDelete('cascade');
+        $table->timestamps();
+    });
+
 }

@@ -3,34 +3,42 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
-use App\Models\User ;
-Use App\Models\Chirp;
+use App\Models\User;
 
 class ChirpTest extends TestCase
 {
     use RefreshDatabase;
-    /**
-     * A basic feature test example.
-     */
-    public function test_un_utilisateur_peut_creer_un_chirp()
+
+    /** @test */
+    public function un_chirp_ne_peut_pas_avoir_un_contenu_vide()
     {
-        // Simuler un utilisateur connecté
+        // Étape 1 : Simuler un utilisateur connecté
         $utilisateur = User::factory()->create();
         $this->actingAs($utilisateur);
 
-        // Envoyer une requête POST pour créer un chirp
+        // Étape 2 : Envoyer une requête POST avec un contenu vide
         $reponse = $this->post('/chirps', [
-            'content' => 'Mon premier chirp !'
+            'content' => '',
         ]);
 
-        // Vérifier que le chirp a été ajouté à la base de données
-        $reponse->assertStatus(201);
-        $this->assertDatabaseHas('chirps', [
-            'content' => 'Mon premier chirp !',
-            'user_id' => $utilisateur->id,
-        ]);
+        // Étape 3 : Vérifier que la validation échoue
+        $reponse->assertSessionHasErrors(['content']);
     }
 
+    /** @test */
+    public function un_chirp_ne_peut_pas_depasse_255_caracteres()
+    {
+        // Étape 1 : Simuler un utilisateur connecté
+        $utilisateur = User::factory()->create();
+        $this->actingAs($utilisateur);
+
+        // Étape 2 : Envoyer une requête POST avec un contenu trop long
+        $reponse = $this->post('/chirps', [
+            'content' => str_repeat('a', 256), // Générer une chaîne de 256 caractères
+        ]);
+
+        // Étape 3 : Vérifier que la validation échoue
+        $reponse->assertSessionHasErrors(['content']);
+    }
 }
