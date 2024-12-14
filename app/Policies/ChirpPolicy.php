@@ -11,6 +11,10 @@ class ChirpPolicy
     /**
      * Determine whether the user can view any models.
      */
+    public function delete(User $user, Chirp $chirp)
+    {
+    return $user->id === $chirp->user_id;
+    }
     public function update(User $user, Chirp $chirp)
     {
     return $user->id === $chirp->user_id;
@@ -39,7 +43,7 @@ class ChirpPolicy
     /**
      * Determine whether the user can update the model.
      */
- 
+
 
     /**
      * Determine whether the user can delete the model.

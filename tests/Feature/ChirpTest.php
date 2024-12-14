@@ -12,7 +12,7 @@ class ChirpTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
-    public function un_utilisateur_peut_modifier_son_chirp()
+    public function un_utilisateur_peut_supprimer_son_chirp()
     {
         // Étape 1 : Créer un utilisateur et un chirp
         $utilisateur = User::factory()->create();
@@ -21,18 +21,15 @@ class ChirpTest extends TestCase
         // Étape 2 : Simuler une authentification
         $this->actingAs($utilisateur);
 
-        // Étape 3 : Faire une requête PUT pour mettre à jour le chirp
-        $reponse = $this->put("/chirps/{$chirp->id}", [
-            'content' => 'Chirp modifié',
-        ]);
+        // Étape 3 : Envoyer une requête DELETE pour supprimer le chirp
+        $reponse = $this->delete("/chirps/{$chirp->id}");
 
         // Étape 4 : Vérifier que la requête a réussi
         $reponse->assertStatus(200);
 
-        // Étape 5 : Vérifier que le chirp a été mis à jour dans la base de données
-        $this->assertDatabaseHas('chirps', [
+        // Étape 5 : Vérifier que le chirp n'existe plus dans la base de données
+        $this->assertDatabaseMissing('chirps', [
             'id' => $chirp->id,
-            'content' => 'Chirp modifié',
         ]);
     }
 }

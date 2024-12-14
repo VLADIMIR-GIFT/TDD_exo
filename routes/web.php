@@ -6,6 +6,9 @@ use App\Http\Controllers\ChirpController;
 use App\Models\Chirp;
 
 
+Route::delete('/chirps/{chirp}', [ChirpController::class, 'destroy']);
+
+
 Route::put('/chirps/{chirp}', [ChirpController::class, 'update']);
 Route::get('/', function () {
     $chirps = Chirp::all();
@@ -29,3 +32,4 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
